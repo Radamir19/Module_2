@@ -1,6 +1,6 @@
 package org.example.discount;
 
-public class Discount implements DiscountInterface {
+public class Discount {
     private final double startDiscount;
     private final double discountStep;
 
@@ -20,10 +20,5 @@ public class Discount implements DiscountInterface {
 
     public double getDiscountStep() {
         return discountStep;
-    }
-
-    @Override
-    public double discountForTheOrder(int index) {
-        return Math.max(0, startDiscount - (discountStep * index));
     }
 }

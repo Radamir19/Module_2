@@ -1,4 +1,4 @@
-package org.example.adapter;
+package org.example.exceptions;
 
 public class OrderParseException extends RuntimeException{
 

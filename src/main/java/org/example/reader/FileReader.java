@@ -1,4 +1,4 @@
-package org.example.adapter;
+package org.example.reader;
 
 import java.io.IOException;
 import java.nio.file.Files;

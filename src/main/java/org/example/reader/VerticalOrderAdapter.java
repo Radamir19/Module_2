@@ -1,20 +1,21 @@
-package org.example.adapter;
+package org.example.reader;
 
+import org.example.exceptions.OrderParseException;
 import org.example.model.Order;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HashOrderAdapter implements OrderParse {
-
+public class VerticalOrderAdapter implements OrderSource {
     private final FileReader reader = new FileReader();
+
     @Override
-    public List<Order> parse() {
+    public List<Order> parse(String path) {
         List<Order> orders = new ArrayList<>();
-        for(String line : reader.loadLines("discount_day_without_ext")) {
-            String[] parts = line.split("#");
-            if(parts.length != 3) {
+        for (String line : reader.loadLines(path)) {
+            String[] parts = line.split("\\|");
+            if (parts.length != 3) {
                 throw new OrderParseException("Corrupted file, please fix.");
             }
             LocalDateTime localDateTime = LocalDateTime.parse(parts[0]);
@@ -23,5 +24,10 @@ public class HashOrderAdapter implements OrderParse {
             orders.add(new Order(localDateTime, companyName, numberOfKilograms));
         }
         return orders;
+    }
+
+    @Override
+    public boolean canParse(String path) {
+        return path.endsWith(".txt");
     }
 }
