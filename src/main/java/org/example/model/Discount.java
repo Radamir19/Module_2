@@ -1,4 +1,4 @@
-package org.example.discount;
+package org.example.model;
 
 public class Discount {
     private final double startDiscount;
