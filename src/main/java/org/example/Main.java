@@ -1,5 +1,7 @@
 package org.example;
 
+import org.example.cli.OrderCliApplication;
+import org.example.model.Discount;
 import org.example.reader.HashOrderAdapter;
 import org.example.reader.OrderSource;
 import org.example.reader.VerticalOrderAdapter;
@@ -17,7 +19,10 @@ public class Main {
         ResultWriter writer = new FileResultWriter();
         List<OrderSource> adapters = List.of(new VerticalOrderAdapter(), new HashOrderAdapter());
         PriceCalculator calculator = new PriceCalculator();
-        OrderProcessingService processor = new OrderProcessingService(writer, adapters, calculator);
-        processor.processOrder();
+        Discount discount = new Discount(0.5, 0.05);
+        OrderProcessingService processor = new OrderProcessingService(writer, adapters, calculator, discount);
+        String inputFile = OrderCliApplication.input();
+        String outputFile = OrderCliApplication.output();
+        processor.processOrder(inputFile, outputFile);
     }
 }

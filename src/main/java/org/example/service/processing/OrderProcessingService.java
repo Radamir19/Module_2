@@ -15,44 +15,34 @@ public class OrderProcessingService {
     private ResultWriter writer;
     private List<OrderSource> adapters;
     private PriceCalculator calculator;
-    public OrderProcessingService(ResultWriter writer, List<OrderSource> adapters, PriceCalculator calculator) {
+    private Discount discount;
+    public OrderProcessingService(ResultWriter writer, List<OrderSource> adapters, PriceCalculator calculator, Discount discount) {
         this.writer = writer;
         this.adapters = adapters;
         this.calculator = calculator;
+        this.discount = discount;
     }
 
-    public void processOrder() throws IOException {
-        String pathToParsingFile = OrderCliApplication.input();
-        OrderSource fileAdapter = chooseAdapter(pathToParsingFile);
-        List<Order> orders = new ArrayList<>(fileAdapter.parse(pathToParsingFile));
+    public void processOrder(String inputFile, String outputFile) throws IOException {
+        OrderSource fileAdapter = chooseAdapter(inputFile);
+        List<Order> orders = new ArrayList<>(fileAdapter.parse(inputFile));
         orders.sort(Comparator.comparing(Order::orderDate));
-        Map<String, Double> result = countTotals(orders);
-        String pathToResultFile = OrderCliApplication.output();
-        writer.write(result, pathToResultFile);
+        Map<String, Double> result = countTotals(orders, discount);
+        writer.write(result, outputFile);
     }
 
-    private Map<String, Double> countTotals(List<Order> orders) {
+    private Map<String, Double> countTotals(List<Order> orders, Discount discount) {
         Map<String, Double> uniqueOrders = new HashMap<>();
         int i = 0;
         for (Order order : orders) {
             double oldPrice = uniqueOrders.getOrDefault(order.companyName(), 0.0);
-            uniqueOrders.put(order.companyName(), oldPrice + calculator.calculate(order, 10, new Discount(0.5, 0.05), i));
+            uniqueOrders.put(order.companyName(), oldPrice + calculator.calculate(order, 10, discount, i));
             i++;
         }
         return uniqueOrders;
     }
 
     private OrderSource chooseAdapter(String path) {
-        OrderSource fileAdapter = null;
-        for (OrderSource adapter : adapters) {
-            if (adapter.canParse(path)) {
-                fileAdapter = adapter;
-                return fileAdapter;
-            }
-        }
-        if (fileAdapter == null) {
-            throw new OrderParseException("Can not parse file. Please send .txt file or without extension file.");
-        }
-        return null;
+        return adapters.stream().filter(adapter -> adapter.canParse(path)).findFirst().orElseThrow(() -> new OrderParseException("Can not parse file. Please send .txt file or without extension file."));
     }
 }
