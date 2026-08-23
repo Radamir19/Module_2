@@ -6,13 +6,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 public class FileReader {
-    public List<String> loadLines(String path) {
-        List<String> lines = null;
-        try {
-            lines = Files.readAllLines(Path.of(path));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return lines;
+    public List<String> loadLines(String path) throws IOException {
+        return Files.readAllLines(Path.of(path));
     }
 }

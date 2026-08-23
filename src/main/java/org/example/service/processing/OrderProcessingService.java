@@ -1,6 +1,5 @@
 package org.example.service.processing;
 
-import org.example.cli.OrderCliApplication;
 import org.example.exceptions.OrderParseException;
 import org.example.model.Discount;
 import org.example.model.Order;
@@ -16,6 +15,7 @@ public class OrderProcessingService {
     private List<OrderSource> adapters;
     private PriceCalculator calculator;
     private Discount discount;
+
     public OrderProcessingService(ResultWriter writer, List<OrderSource> adapters, PriceCalculator calculator, Discount discount) {
         this.writer = writer;
         this.adapters = adapters;
@@ -43,6 +43,9 @@ public class OrderProcessingService {
     }
 
     private OrderSource chooseAdapter(String path) {
-        return adapters.stream().filter(adapter -> adapter.canParse(path)).findFirst().orElseThrow(() -> new OrderParseException("Can not parse file. Please send .txt file or without extension file."));
+        return adapters.stream()
+                .filter(adapter -> adapter.canParse(path))
+                .findFirst()
+                .orElseThrow(() -> new OrderParseException("Can not parse file. Please send .txt file or without extension file."));
     }
 }
