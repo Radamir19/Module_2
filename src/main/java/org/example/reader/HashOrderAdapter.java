@@ -10,17 +10,21 @@ import java.util.List;
 
 public class HashOrderAdapter implements OrderSource {
 
-    private final FileReader reader = new FileReader();
+    private FileReader reader;
+
+    public HashOrderAdapter(FileReader reader) {
+        this.reader = reader;
+    }
 
     @Override
     public List<Order> parse(String path) throws IOException {
-        if (!canParse(path)) {
+        if(!canParse(path)) {
             throw new OrderParseException("Only can parse file without extension. Please try again.");
         }
             List<Order> orders = new ArrayList<>();
         for (String line : reader.loadLines(path)) {
             String[] parts = line.split("#");
-            if (parts.length != 3) {
+            if(parts.length != 3) {
                 throw new OrderParseException("Corrupted file, please fix.");
             }
             LocalDateTime localDateTime = LocalDateTime.parse(parts[0]);

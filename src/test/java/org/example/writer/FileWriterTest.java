@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,7 +21,7 @@ public class FileWriterTest {
 
     @Test
     void writeResultToFile() throws IOException {
-        Map<String, Double> map = new HashMap<>();
+        Map<String, Double> map = new LinkedHashMap<>();
         map.put("test", 100.05);
         Path path = tempDir.resolve("test.txt");
         writer.write(map, path.toString());

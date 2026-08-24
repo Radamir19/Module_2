@@ -18,8 +18,9 @@ public class FileReaderTest {
     @Test
     void testReadFile() throws IOException {
         Path path = tempDir.resolve("reader.txt");
-        Files.write(path, List.of("CCC|100|5", "ABC|50|3"));
-        Assertions.assertEquals(List.of("CCC|100|5", "ABC|50|3"), reader.loadLines(path.toString()));
+        List<String> expectedLines = List.of("CCC|100|5", "ABC|50|3");
+        Files.write(path, expectedLines);
+        Assertions.assertEquals(expectedLines, reader.loadLines(path.toString()));
     }
 
     @Test

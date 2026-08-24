@@ -10,7 +10,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class VerticalOrderAdapter implements OrderSource {
-    private final FileReader reader = new FileReader();
+    private FileReader reader;
+
+    public VerticalOrderAdapter(FileReader reader) {
+        this.reader = reader;
+    }
 
     @Override
     public List<Order> parse(String path) throws IOException {

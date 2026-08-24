@@ -1,7 +1,6 @@
-package org.example.service.calculator;
+package org.example.service.calculate;
 
 import org.example.model.Discount;
-import org.example.service.calculate.PriceCalculator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.example.model.Order;
