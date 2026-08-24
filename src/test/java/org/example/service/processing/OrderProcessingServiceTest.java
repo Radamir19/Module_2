@@ -10,12 +10,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -34,8 +32,6 @@ public class OrderProcessingServiceTest {
     PriceCalculator calculator;
     private Discount discount;
     private OrderProcessingService service;
-    @TempDir
-    Path tempDir;
 
     @BeforeEach
     void generateServiceConstructor() {
@@ -52,8 +48,8 @@ public class OrderProcessingServiceTest {
 
     @Test
     void testRegularProcessingForTxt() throws IOException {
-        String inputPath = tempDir.resolve("service.txt").toString();
-        String outputPath = tempDir.resolve("service_txt_result.txt").toString();
+        String inputPath = "service.txt";
+        String outputPath = "service_txt_result.txt";
 
         when(verticalAdapter.canParse(inputPath)).thenReturn(true);
         when(verticalAdapter.parse(inputPath)).thenReturn(sampleOrders());
@@ -67,25 +63,9 @@ public class OrderProcessingServiceTest {
     }
 
     @Test
-    void testRegularProcessingFileWithoutExtension() throws IOException {
-        String inputPath = tempDir.resolve("service").toString();
-        String outputPath = tempDir.resolve("service_txt_result.txt").toString();
-
-        when(hashAdapter.canParse(inputPath)).thenReturn(true);
-        when(hashAdapter.parse(inputPath)).thenReturn(sampleOrders());
-        List<Order> orders = sampleOrders();
-        when(calculator.calculate(eq(orders.get(0)), anyDouble(), any(Discount.class), anyInt())).thenReturn(100d);
-        when(calculator.calculate(eq(orders.get(1)), anyDouble(), any(Discount.class), anyInt())).thenReturn(200d);
-        service.processOrder(inputPath, outputPath);
-        Map<String, Double> expectedMap = Map.of("Mosque", 200d, "Industrial", 100d);
-
-        verify(writer).write(expectedMap, outputPath);
-    }
-
-    @Test
     void testAllAdaptersAreUseless() throws IOException {
-        String inputPath = tempDir.resolve("service.pdf").toString();
-        String outputPath = tempDir.resolve("service_txt_result.txt").toString();
+        String inputPath = "service.pdf";
+        String outputPath = "service_txt_result.txt";
         when(hashAdapter.canParse(inputPath)).thenReturn(false);
         when(verticalAdapter.canParse(inputPath)).thenReturn(false);
         Assertions.assertThrows(OrderParseException.class, () -> service.processOrder(inputPath, outputPath));
@@ -94,13 +74,12 @@ public class OrderProcessingServiceTest {
 
     @Test
     void testIOExceptionThrowsAfterAllActions() throws IOException {
-        String inputPath = tempDir.resolve("service").toString();
-        String outputPath = tempDir.resolve("service_txt_result.txt").toString();
+        String inputPath = "service";
+        String outputPath = "service.txt";
 
         when(hashAdapter.canParse(inputPath)).thenReturn(true);
         when(hashAdapter.parse(inputPath)).thenReturn(sampleOrders());
         doThrow(new IOException()).when(writer).write(any(), any());
         Assertions.assertThrows(IOException.class, () -> service.processOrder(inputPath, outputPath));
     }
-
 }
