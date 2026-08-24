@@ -63,6 +63,6 @@ public class VerticalOrderAdapterTest {
     @Test
     void testOrderParseException() {
         String path = tempDir.resolve("adapter").toString();
-        Assertions.assertThrows(OrderParseException.class, () -> adapter.canParse(path));
+        Assertions.assertThrows(OrderParseException.class, () -> adapter.parse(path));
     }
 }

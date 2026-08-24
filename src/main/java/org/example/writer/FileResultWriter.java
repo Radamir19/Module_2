@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class FileResultWriter implements ResultWriter {
     @Override
-    public void write(Map<String, Double> result, String pathResult) throws IOException{
+    public void write(Map<String, Double> result, String pathResult) throws IOException {
         List<String> ordersToFile = new ArrayList<>();
         for (Map.Entry<String, Double> entry : result.entrySet()) {
             String line = entry.getKey() + " - " + entry.getValue();

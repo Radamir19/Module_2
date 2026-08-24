@@ -30,7 +30,8 @@ public class OrderProcessingServiceTest {
     OrderSource hashAdapter;
     @Mock
     OrderSource verticalAdapter;
-    private PriceCalculator calculator;
+    @Mock
+    PriceCalculator calculator;
     private Discount discount;
     private OrderProcessingService service;
     @TempDir
@@ -38,9 +39,15 @@ public class OrderProcessingServiceTest {
 
     @BeforeEach
     void generateServiceConstructor() {
-        calculator = new PriceCalculator();
-        discount = new Discount(0.5,0.0);
+        discount = new Discount(0.5, 0.0);
         service = new OrderProcessingService(writer, List.of(hashAdapter, verticalAdapter), calculator, discount);
+    }
+
+    private List<Order> sampleOrders() {
+        return List.of(
+                new Order(LocalDateTime.parse("2021-02-09T16:00:22"), "Industrial", 8800),
+                new Order(LocalDateTime.parse("2021-02-09T10:48:34"), "Mosque", 33120)
+        );
     }
 
     @Test
@@ -49,14 +56,12 @@ public class OrderProcessingServiceTest {
         String outputPath = tempDir.resolve("service_txt_result.txt").toString();
 
         when(verticalAdapter.canParse(inputPath)).thenReturn(true);
-        List<Order> orders = List.of(
-                new Order(LocalDateTime.parse("2021-02-09T16:00:22"), "Industrial", 8800),
-                new Order(LocalDateTime.parse("2021-02-09T10:48:34"), "Mosque", 33120)
-        );
-        when(verticalAdapter.parse(inputPath)).thenReturn(orders);
-
+        when(verticalAdapter.parse(inputPath)).thenReturn(sampleOrders());
+        List<Order> orders = sampleOrders();
+        when(calculator.calculate(eq(orders.get(0)), anyDouble(), any(Discount.class), anyInt())).thenReturn(100d);
+        when(calculator.calculate(eq(orders.get(1)), anyDouble(), any(Discount.class), anyInt())).thenReturn(200d);
         service.processOrder(inputPath, outputPath);
-        Map<String, Double> expectedMap = Map.of("Mosque", 165600.0, "Industrial", 44000.0);
+        Map<String, Double> expectedMap = Map.of("Mosque", 200d, "Industrial", 100d);
 
         verify(writer).write(expectedMap, outputPath);
     }
@@ -67,14 +72,12 @@ public class OrderProcessingServiceTest {
         String outputPath = tempDir.resolve("service_txt_result.txt").toString();
 
         when(hashAdapter.canParse(inputPath)).thenReturn(true);
-        List<Order> orders = List.of(
-                new Order(LocalDateTime.parse("2021-02-09T16:00:22"), "Industrial", 8800),
-                new Order(LocalDateTime.parse("2021-02-09T10:48:34"), "Mosque", 33120)
-        );
-        when(hashAdapter.parse(inputPath)).thenReturn(orders);
-
+        when(hashAdapter.parse(inputPath)).thenReturn(sampleOrders());
+        List<Order> orders = sampleOrders();
+        when(calculator.calculate(eq(orders.get(0)), anyDouble(), any(Discount.class), anyInt())).thenReturn(100d);
+        when(calculator.calculate(eq(orders.get(1)), anyDouble(), any(Discount.class), anyInt())).thenReturn(200d);
         service.processOrder(inputPath, outputPath);
-        Map<String, Double> expectedMap = Map.of("Mosque", 165600.0, "Industrial", 44000.0);
+        Map<String, Double> expectedMap = Map.of("Mosque", 200d, "Industrial", 100d);
 
         verify(writer).write(expectedMap, outputPath);
     }
@@ -83,7 +86,8 @@ public class OrderProcessingServiceTest {
     void testAllAdaptersAreUseless() throws IOException {
         String inputPath = tempDir.resolve("service.pdf").toString();
         String outputPath = tempDir.resolve("service_txt_result.txt").toString();
-
+        when(hashAdapter.canParse(inputPath)).thenReturn(false);
+        when(verticalAdapter.canParse(inputPath)).thenReturn(false);
         Assertions.assertThrows(OrderParseException.class, () -> service.processOrder(inputPath, outputPath));
         verify(writer, never()).write(any(), any());
     }
@@ -94,14 +98,9 @@ public class OrderProcessingServiceTest {
         String outputPath = tempDir.resolve("service_txt_result.txt").toString();
 
         when(hashAdapter.canParse(inputPath)).thenReturn(true);
-        List<Order> orders = List.of(
-                new Order(LocalDateTime.parse("2021-02-09T16:00:22"), "Industrial", 8800),
-                new Order(LocalDateTime.parse("2021-02-09T10:48:34"), "Mosque", 33120)
-        );
-        when(hashAdapter.parse(inputPath)).thenReturn(orders);
+        when(hashAdapter.parse(inputPath)).thenReturn(sampleOrders());
         doThrow(new IOException()).when(writer).write(any(), any());
         Assertions.assertThrows(IOException.class, () -> service.processOrder(inputPath, outputPath));
     }
 
-    
 }
