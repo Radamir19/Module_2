@@ -5,13 +5,11 @@ import org.example.model.Order;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.io.TempDir;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -23,12 +21,10 @@ public class VerticalOrderAdapterTest {
     FileReader reader;
     @InjectMocks
     VerticalOrderAdapter adapter;
-    @TempDir
-    Path tempDir;
 
     @Test
     void testRegularParse() throws IOException {
-        String path = tempDir.resolve("adapter.txt").toString();
+        String path = "adapter.txt";
         List<String> input = List.of("2021-02-09T16:00:22|Industrial|8800", "2021-02-09T08:42:59|Power Engineer|17480", "2021-02-09T10:48:34|Mosque|33120");
         when(reader.loadLines(path)).thenReturn(input);
         List<Order> orders = List.of(new Order(LocalDateTime.parse("2021-02-09T16:00:22"), "Industrial", 8800),
@@ -40,7 +36,7 @@ public class VerticalOrderAdapterTest {
 
     @Test
     void testEmptyFile() throws IOException {
-        String path = tempDir.resolve("adapter.txt").toString();
+        String path = "adapter.txt";
         List<String> input = List.of();
         when(reader.loadLines(path)).thenReturn(input);
         List<Order> orders = List.of();
@@ -50,7 +46,7 @@ public class VerticalOrderAdapterTest {
 
     @Test
     void testCorruptedFile() throws IOException {
-        String path = tempDir.resolve("adapter.txt").toString();
+        String path = "adapter.txt";
         List<String> input = List.of(
                 "2021-02-09T16:00:22|Industrial",
                 "2021-02-09T08:42:59|Power Engineer|17480",
@@ -62,7 +58,7 @@ public class VerticalOrderAdapterTest {
 
     @Test
     void testOrderParseException() {
-        String path = tempDir.resolve("adapter").toString();
+        String path = "adapter.txt";
         Assertions.assertThrows(OrderParseException.class, () -> adapter.parse(path));
     }
 }
